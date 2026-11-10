@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+# La raiz del sitio muestra la calculadora
+[[redirects]]
+  from = "/"
+  to = "/calculadora_precios_elite.html"
+  status = 200

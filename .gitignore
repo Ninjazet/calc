@@ -1,0 +1,7 @@
+# Solo se publica el sitio (Netlify): HTML + imagenes webp
+/*
+!/.gitignore
+!/README.md
+!/netlify.toml
+!/calculadora_precios_elite.html
+!/imagenes webp/
