@@ -1007,6 +1007,12 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// Codifica cada segmento de la ruta (espacios, #, acentos...) para que funcione como URL en la web
+function imgUrl(path) {
+  if (!path) return '';
+  return String(path).split('/').map(encodeURIComponent).join('/');
+}
+
 function safeGetStorage(key) {
   try {
     return localStorage.getItem(key);
@@ -1254,7 +1260,7 @@ function renderTabla() {
     }
 
     const imgTag = p.imagen 
-      ? `<img src="${escapeHtml(p.imagen)}" class="thumb-img" alt="${escapeHtml(p.nombre)}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<span class=\'thumb-placeholder\'>🧴</span>'">`
+      ? `<img src="${escapeHtml(imgUrl(p.imagen))}" class="thumb-img" alt="${escapeHtml(p.nombre)}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<span class=\'thumb-placeholder\'>🧴</span>'">`
       : `<span class="thumb-placeholder">🧴</span>`;
 
     const catBadge = (p.catalogo || '').includes('hombre') 
