@@ -6,3 +6,4 @@
   from = "/"
   to = "/calculadora_precios_elite.html"
   status = 200
+
