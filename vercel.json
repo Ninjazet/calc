@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/calculadora_precios_elite.html"
+    }
+  ]
+}
