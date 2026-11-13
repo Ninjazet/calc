@@ -306,6 +306,18 @@ body {
   accent-color: var(--gold);
   cursor: pointer;
 }
+.markup-custom-input {
+  width: 5.7rem;
+  min-width: 5.7rem;
+  text-align: center;
+}
+.ctrl-help {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
 .range-display {
   font-family: var(--serif);
   font-size: 1.25rem;
@@ -826,7 +838,7 @@ tr.is-confirmed td {
       <div class="mode-btn" id="modeMarkup" onclick="selectMode('markup')">
         <span class="mode-badge">Opción 2 · Margen Tradicional</span>
         <div class="mode-name">Margen sobre Costo Mayorista</div>
-        <p class="mode-desc">Aplica un porcentaje fijo de ganancia (30%, 45%, 60%) sobre el costo mayorista + gastos por unidad.</p>
+        <p class="mode-desc">Aplica el porcentaje de ganancia que elijas sobre el costo mayorista + gastos por unidad.</p>
       </div>
       <div class="mode-btn active" id="modeSmart" onclick="selectMode('smart')">
         <span class="mode-badge">Opción 3 · Margen Inteligente</span>
@@ -857,8 +869,10 @@ tr.is-confirmed td {
       <div class="ctrl-group" id="markupSliderGroup" style="display:none;">
         <label>Margen sobre Costo: <span id="lblMarkup" class="range-display">45%</span></label>
         <div class="range-wrap">
-          <input type="range" id="rangeMarkup" min="30" max="60" value="45" step="15" oninput="updateMarkup(this.value)">
+          <input type="range" id="rangeMarkup" min="0" max="200" value="45" step="1" oninput="updateMarkup(this.value, 'range')" aria-label="Margen sobre costo">
+          <input type="number" id="inputMarkup" class="ctrl-input markup-custom-input" min="0" step="0.1" value="45" oninput="updateMarkup(this.value, 'input')" aria-label="Porcentaje de margen personalizado">
         </div>
+        <small class="ctrl-help">Desliza de 0% a 200% o escribe cualquier porcentaje.</small>
       </div>
 
       <div class="ctrl-group">
@@ -1101,7 +1115,7 @@ function selectMode(m) {
     document.getElementById('modeMarkup').classList.add('active');
     document.getElementById('marketSliderGroup').style.display = 'none';
     document.getElementById('markupSliderGroup').style.display = 'block';
-    document.getElementById('activeStrategyBadge').textContent = 'Margen Fijo (+' + document.getElementById('rangeMarkup').value + '%)';
+    document.getElementById('activeStrategyBadge').textContent = 'Margen Fijo (+' + getMarkupValue() + '%)';
   } else {
     document.getElementById('modeSmart').classList.add('active');
     document.getElementById('marketSliderGroup').style.display = 'none';
@@ -1115,9 +1129,22 @@ function updateDescuento(val) {
   document.getElementById('activeStrategyBadge').textContent = 'Competitivo (-' + val + '% vs Privé)';
 }
 
-function updateMarkup(val) {
-  document.getElementById('lblMarkup').textContent = val + '%';
-  document.getElementById('activeStrategyBadge').textContent = 'Margen Fijo (+' + val + '%)';
+function getMarkupValue() {
+  const value = parseFloat(document.getElementById('inputMarkup').value);
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function updateMarkup(val, source) {
+  const value = parseFloat(val);
+  if (!Number.isFinite(value) || value < 0) return;
+
+  const range = document.getElementById('rangeMarkup');
+  const input = document.getElementById('inputMarkup');
+  if (source !== 'input') input.value = value;
+  if (source !== 'range') range.value = Math.min(value, parseFloat(range.max));
+
+  document.getElementById('lblMarkup').textContent = value + '%';
+  document.getElementById('activeStrategyBadge').textContent = 'Margen Fijo (+' + value + '%)';
 }
 
 function aplicarEstrategiaATodos() {
@@ -1125,7 +1152,7 @@ function aplicarEstrategiaATodos() {
   const envio = parseFloat(document.getElementById('costEnvio').value) || 0;
   const redondeo = document.getElementById('selRound').value;
   const descPct = parseFloat(document.getElementById('rangeDescuento').value) / 100;
-  const markPct = parseFloat(document.getElementById('rangeMarkup').value) / 100;
+  const markPct = getMarkupValue() / 100;
 
   productos.forEach(p => {
     if (!p.confirmado) {
